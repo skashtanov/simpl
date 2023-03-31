@@ -1,3 +1,4 @@
+// TODO: replace with #include "stack_pimpl/stack_pimpl.hpp" after finishing CMake
 #include "../include/stack_pimpl/stack_pimpl.hpp"
 
 #include <utility>
@@ -54,7 +55,7 @@ namespace stack_pimpl
         static_assert(Alignment == ActualAlignment, "Provided alignment doesn't equal to alignof(T)");
     }
 
-    // maybe const here
+    // TODO: maybe const here
     template <class T, size_t Size, size_t Alignment>
     T* stack_pimpl<T, Size, Alignment>::ptr() noexcept {
         return reinterpret_cast<T*>(&data_);

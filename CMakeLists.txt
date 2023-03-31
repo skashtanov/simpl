@@ -6,10 +6,11 @@ project(stack_pimpl
     VERSION 0.1.0
     LANGUAGES CXX
 )
-    
+
+# TODO: remove BUILD_* options if target library type will be only static
 option(BUILD_STATIC "Enables building header only library" ON)
 option(BUILD_SHARED "Enables building an dll library" OFF)
-option(RUN_CLANG_TIDY "Enables clang-tidy analysis in Debug mode" OFF)
+option(RUN_CLANG_TIDY "Enables clang-tidy analysis" OFF)
 
 list(APPEND Sources src/stack_pimpl.cpp)
 
@@ -20,6 +21,7 @@ if (BUILD_STATIC)
     add_library(${PROJECT_NAME} STATIC ${Sources})
 endif()
 
+# TODO: remove it if not needed
 if (BUILD_SHARED)
     message(STATUS "Building a shared library")
     add_library(${PROJECT_NAME} SHARED ${Sources})
