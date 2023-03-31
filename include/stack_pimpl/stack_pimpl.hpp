@@ -36,12 +36,10 @@ namespace stack_pimpl
 
         T* ptr() noexcept;
 
-    #if __cplusplus > 201703L
+#if __cplusplus > 201703L
         alignas(Alignment) std::byte data_[Size];
-    #elif __cplusplus > 201103L
+#else __cplusplus > 201103L
         alignas(Alignment) unsigned char data_[Size];
-    #else
-        static_assert(false, "Using stack_pimpl is only available for C++ standards greater or equal to 11th");
-    #endif
+#endif
     };
 }
