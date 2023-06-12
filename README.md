@@ -14,7 +14,7 @@ That's all can be solved by replacing heap allocated memory by stack preallocate
 
 ### Warning
 
-This realization ignores ABI compatibility, because with PIMPL, you always have a member with `sizeof(T*)`, with SIMPL you'll have `sizeof(T)` bytes. So if `sizeof(T)` increases, you'll lose ABI compatibility. If that's not critical, use SIMPL.
+This realization ignores ABI compatibility, because with PIMPL, you always have a member with `sizeof(T*)`, with SIMPL you'll have `sizeof(T)` bytes. So after changing of `sizeof(T)`, you'll lose ABI compatibility. If that's not critical, use SIMPL.
 
 ## Usage
 
