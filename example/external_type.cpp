@@ -8,8 +8,6 @@ ExternalType::ExternalType(std::string d, int i) :
 {
 }
 
-ExternalType::~ExternalType() = default;
-
 void ExternalType::hello() {
     std::cout << "Hello from " << data << " with id " << id << '\n';
 }

@@ -7,6 +7,5 @@ struct ExternalType
     int id;
 
     ExternalType(std::string d, int i);
-    ~ExternalType();
     void hello();
 };
