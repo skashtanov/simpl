@@ -1,3 +1,4 @@
-.idea/
 .vscode/
 build/
+build.ps1
+example/build

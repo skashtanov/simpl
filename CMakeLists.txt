@@ -1,46 +1,69 @@
-# TODO: decrease minimum required version
-cmake_minimum_required(VERSION 3.23 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8)
 
-project(stack_pimpl
+set(CMAKE_INSTALL_PREFIX "D:/dev/libs/simpl")
+
+project(simpl
+    VERSION 1.0.0
     DESCRIPTION "Fast stack implementation of PIMPL idiom"
-    VERSION 0.1.0
     LANGUAGES CXX
 )
 
-# TODO: remove BUILD_* options if target library type will be only static
-option(BUILD_STATIC "Enables building header only library" ON)
-option(BUILD_SHARED "Enables building an dll library" OFF)
-option(RUN_CLANG_TIDY "Enables clang-tidy analysis" OFF)
+include(GNUInstallDirs)
 
-list(APPEND Sources src/stack_pimpl.cpp)
-
-message(STATUS "Build options: ${CMAKE_CXX_FLAGS_RELEASE}")
-
-if (BUILD_STATIC)
-    message(STATUS "Building a static library")
-    add_library(${PROJECT_NAME} STATIC ${Sources})
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(${PROJECT_NAME}_TOP_LEVEL TRUE)
+else() 
+    set(${PROJECT_NAME}_TOP_LEVEL FALSE)
 endif()
 
-# TODO: remove it if not needed
-if (BUILD_SHARED)
-    message(STATUS "Building a shared library")
-    add_library(${PROJECT_NAME} SHARED ${Sources})
+option(${PROJECT_NAME}_BUILD_TESTING "Build & run ${PROJECT_NAME} tests" ${${PROJECT_NAME}_TOP_LEVEL})
+option(${PROJECT_NAME}_INSTALL_LIBRARY "Enable installing of SI library into default locations" ${${PROJECT_NAME}_TOP_LEVEL})
+
+add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+target_include_directories(
+    ${PROJECT_NAME} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                              $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
+
+if(BUILD_TESTING AND ${PROJECT_NAME}_BUILD_TESTING)
+    add_subdirectory(test)
 endif()
 
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES 
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED TRUE
-        CXX_EXTENSIONS OFF
-)
+if(${PROJECT_NAME}_INSTALL_LIBRARY)
+    install(
+        TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}_Targets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-if (RUN_CLANG_TIDY)
-    if (${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
-        message(STATUS "Unable to run clang-tidy when source dir equal binary dir")
-    else()
-        message(STATUS "Starting clang-tidy diagnostics")
-        set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*,clang-analyzer-*,-clang-analyzer-cplusplus* --use-color)
-    endif()
+    include(CMakePackageConfigHelpers)
+
+    write_basic_package_version_file(
+        "${PROJECT_NAME}ConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion)
+
+    configure_package_config_file(
+        "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+
+    install(
+        EXPORT ${PROJECT_NAME}_Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+
+    install(
+        FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+              "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+
+    install(
+        DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
-
-unset(Sources)
